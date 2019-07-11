@@ -1,0 +1,2 @@
+name = gets
+print name
