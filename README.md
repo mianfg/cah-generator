@@ -1,4 +1,3 @@
-# Cards Against Humanity Generator
 <p align="center">
     <img src="./resources/logo.png" width="500px">
 </p>
