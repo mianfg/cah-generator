@@ -36,7 +36,7 @@ The generator works using three files:
 
 ### Info file
 
-If the info file is available, the game will introduce your game name in every card. Refer to the help text for more information on this file's format.
+If the info file is available, the generator will introduce your game name in every card. Refer to the help text for more information on this file's format.
 
 ### White and black cards
 
