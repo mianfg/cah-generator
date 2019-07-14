@@ -516,8 +516,17 @@ def load_ttf_fonts(font_dir, font_families)
 end
 
 
-def render_cards(directory=".", info_file="info.txt", white_file="white.txt", black_file="black.txt", icon_file="icon.png", output_file="cards.pdf", input_files_are_absolute=false, output_file_name_from_directory=true, recurse=true, card_geometry=get_card_geometry, white_string="", black_string="", output_to_stdout=false, title=nil )
-	
+# Renders cards
+# @param directory [String] :
+# @param info_file [String] :
+# @param white_file [String] :
+# @param black_file [String] :
+# @param icon_file [String] :
+# @param output_file [String] :
+# @param input_files_are_absolute [Bool] :
+# @param output_file_name_from_directory [Bool] :
+# @param recurse [Bool] :
+def render_cards(directory=".", info_file="info.txt", white_file="white.txt", black_file="black.txt", icon_file="icon.png", output_file="cards.pdf", input_files_are_absolute=false, output_file_name_from_directory=true, recurse=true, card_geometry=get_card_geometry, white_string="", black_string="", output_to_stdout=false, title=nil)
 	original_white_file = white_file
 	original_black_file = black_file
 	original_icon_file = icon_file
@@ -533,7 +542,6 @@ def render_cards(directory=".", info_file="info.txt", white_file="white.txt", bl
 		icon_file = "./icon.png"
 	end
 
-
 	if not directory.nil?
 		if File.exist?(directory) and directory != "." and output_file_name_from_directory
 			output_file = directory.split(File::Separator).pop + ".pdf"
@@ -546,26 +554,25 @@ def render_cards(directory=".", info_file="info.txt", white_file="white.txt", bl
 		title = output_file.split(File::Separator).pop.gsub(/.pdf$/, "")
 	end
 	
-
-	
 	white_pages = []
 	black_pages = []
+
 	if white_file == nil and black_file == nil and white_string == "" and black_string == ""
 		white_string = " "
 		black_string = " "
 	end
+
 	if white_string != "" || white_file == nil
 		white_pages = load_pages_from_string(white_string, card_geometry)
 	else
 		white_pages = load_pages_from_file(white_file, card_geometry)
 	end
+
 	if black_string != "" || black_file == nil
 		black_pages = load_pages_from_string(black_string, card_geometry)
 	else
 		black_pages = load_pages_from_file(black_file, card_geometry)
 	end
-		
-	
 	
 	if white_pages.length > 0 or black_pages.length > 0
 		pdf = Prawn::Document.new(
@@ -576,14 +583,18 @@ def render_cards(directory=".", info_file="info.txt", white_file="white.txt", bl
 			bottom_margin: card_geometry["margin_top"],
 			info: { :Title => title, :CreationDate => Time.now, :Producer => "Bigger, Blacker Cards", :Creator=>"Bigger, Blacker Cards" }
 			)
+		
 		load_ttf_fonts("/usr/share/fonts/truetype/msttcorefonts", pdf.font_families)
 
 		info = load_info(info_file)
+
 		white_pages.each_with_index do |statements, page|
 			render_card_page(pdf, card_geometry, icon_file, statements, false, info)
 			pdf.start_new_page unless page >= white_pages.length-1
 		end
+
 		pdf.start_new_page unless white_pages.length == 0 || black_pages.length == 0
+
 		black_pages.each_with_index do |statements, page|
 			render_card_page(pdf, card_geometry, icon_file, statements, true, info)
 			pdf.start_new_page unless page >= black_pages.length-1
@@ -609,12 +620,16 @@ def render_cards(directory=".", info_file="info.txt", white_file="white.txt", bl
 
 end
 
+# Parse arguments
+# @param variables [Hash] :
+# @param flags [Hash] :
+# @param save_orphaned [Bool] :
+# @param argv [Array<>] :
 def parse_args(variables=Hash.new, flags=Hash.new, save_orphaned=false, argv=ARGV)
-	
 	parsed_args = Hash.new
 	orphaned = Array.new
-
 	new_argv=Array.new
+
 	while argv.length > 0
 		next_arg = argv.shift
 		if variables.has_key? next_arg
@@ -628,6 +643,7 @@ def parse_args(variables=Hash.new, flags=Hash.new, save_orphaned=false, argv=ARG
 		end
 		new_argv.push next_arg
 	end
+
 	if save_orphaned
 		parsed_args["ORPHANED_ARGUMENT_ARRAY"] = orphaned
 	end
@@ -640,7 +656,7 @@ def parse_args(variables=Hash.new, flags=Hash.new, save_orphaned=false, argv=ARG
 end
 
 
-
+# Prints help message
 def print_help
 	puts "\n                       . :+ysmd.                        
                 `.``ohhys+-`.m                         
@@ -758,6 +774,7 @@ def print_help
 end
 
 
+# Main function
 def main
 	arg_defs  = Hash.new
 	flag_defs = Hash.new
@@ -783,9 +800,9 @@ def main
 	flag_defs["-h"]            = "help"
 	flag_defs["--help"]        = "help"
 
-
 	args = parse_args(arg_defs, flag_defs)
 	card_geometry = get_card_geometry(2.0,2.0, !(args["rounded"]).nil?, !(args["oneperpage"]).nil? )
+
 	if args.has_key? "large"
 		card_geometry = get_card_geometry(2.5,3.5, (not (args["rounded"]).nil?), (not (args["oneperpage"]).nil? ))
 	end
@@ -798,6 +815,7 @@ def main
 		render_cards nil, args["info"], args["white"], args["black"], "icon.png", args["output"], true, false, false, card_geometry, "", "", false
 	end
 end
+
 
 main
 exit
